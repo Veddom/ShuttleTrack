@@ -7,7 +7,6 @@
   <title>Inventory</title>
   <link rel="icon" type="image/png" href="inventory.png">
   <style>
-    /* GLOBAL RESET & BASE */
     * {
       box-sizing: border-box;
       margin: 0;
@@ -20,6 +19,12 @@
       color: white;
       padding: 16px;
       min-height: 100vh;
+      opacity: 0;
+      transition: opacity 1.8s ease;
+    }
+
+    body.loaded {
+      opacity: 1;
     }
 
     .container {
@@ -28,73 +33,6 @@
       padding-bottom: 40px;
     }
 
-    /* TOP NAVIGATION */
-    .top-nav {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background-color: #001f3f;
-      padding: 12px 16px;
-      height: 60px;
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .nav-logo {
-      height: 44px;
-    }
-
-    .logo-text {
-      font-size: 18px;
-      font-family: 'Georgia', serif;
-    }
-
-    .logo-section {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      cursor: pointer;
-    }
-
-    .nav-links {
-      display: flex;
-      gap: 16px;
-    }
-
-    .nav-item img {
-      height: 36px;
-      transition: transform 0.2s;
-    }
-
-    .nav-item img:hover {
-      transform: scale(1.1);
-    }
-
-    .tooltip {
-      position: absolute;
-      bottom: -26px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: white;
-      color: #001f3f;
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 12px;
-      opacity: 0;
-      transition: opacity 0.3s;
-    }
-
-    .nav-item {
-      position: relative;
-    }
-
-    .nav-item:hover .tooltip {
-      opacity: 1;
-    }
-
-    /* CARD STYLE */
     .inventory-display,
     .manage-shuttle {
       background-color: #122b50;
@@ -110,7 +48,6 @@
       font-size: 1.2rem;
     }
 
-    /* FORM ELEMENTS */
     .field {
       margin: 12px 0;
     }
@@ -145,7 +82,6 @@
       background-color: #ff4d4d;
     }
 
-    /* RESPONSIVE MANAGE TOGGLE */
     .manage-shuttle {
       max-height: 0;
       opacity: 0;
@@ -160,7 +96,6 @@
       transition: all 1s ease;
     }
 
-    /* MODALS */
     .modal {
       display: none;
       position: fixed;
@@ -203,7 +138,6 @@
       border-radius: 8px;
       font-weight: bold;
       cursor: pointer;
-      transition: background-color 0.2s;
     }
 
     .modal-button:hover {
@@ -214,7 +148,6 @@
       background-color: grey;
     }
 
-    /* PASSWORD TOGGLE */
     .password-wrapper {
       position: relative;
       display: flex;
@@ -233,7 +166,6 @@
       font-size: 18px;
     }
 
-    /* ANIMATIONS */
     @keyframes slideUpFade {
       from {
         transform: translateY(20px);
@@ -272,110 +204,84 @@
       }
     }
 
-    /* WARNINGS */
     .warning {
       color: red;
       font-size: 14px;
       margin-top: 6px;
     }
 
-    /* RESPONSIVE TWEAKS */
-    @media (max-width: 500px) {
-      .btn {
-        width: 100%;
-        margin-right: 0;
-      }
-
-      .nav-links {
-        gap: 12px;
-      }
-
-      .nav-item img {
-        height: 32px;
-      }
-
-      .logo-text {
-        font-size: 16px;
-      }
-    }
-
-    .bottom-nav {
+    .floating-menu {
       position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #003366;
-      border-radius: 60px;
-      padding: 16px 30px;
-      /* increased padding */
-      display: flex;
-      gap: 30px;
-      /* more spacing between icons */
-      align-items: center;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-      z-index: 1000;
+      top: 20px;
+      right: 20px;
+      z-index: 1500;
     }
 
-    .nav-item {
+    .menu-toggle {
+      background-color: #59c5ff;
+      color: #003366;
+      font-size: 26px;
+      font-weight: bold;
+      border: none;
+      border-radius: 50%;
+      width: 56px;
+      height: 56px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      transition: background-color 0.3s ease;
+    }
+
+    .menu-toggle:hover {
+      background-color: #00b4d8;
+    }
+
+    .menu-options {
+      display: none;
+      position: absolute;
+      top: 70px;
+      right: 0;
+      background-color: #003366;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+      overflow: hidden;
+      min-width: 180px;
+      animation: fadeInMenu 0.3s ease;
+    }
+
+    .menu-options a {
       display: flex;
-      flex-direction: column;
       align-items: center;
+      padding: 12px 16px;
+      gap: 10px;
       color: white;
       text-decoration: none;
-      font-size: 13px;
-      /* bigger text */
-      transition: transform 0.2s ease;
+      font-size: 14px;
+      transition: background-color 0.2s ease;
     }
 
-    .nav-item img {
-      width: 32px;
-      /* bigger icon */
-      height: 32px;
-      margin-bottom: 6px;
+    .menu-options a:hover {
+      background-color: #1b465d;
     }
 
-    .nav-item:hover {
-      transform: scale(1.1);
+    .menu-options a img {
+      width: 20px;
+      height: 20px;
     }
 
-    .nav-home {
-      background: #1ecbff;
-      border-radius: 50%;
-      width: 72px;
-      /* bigger home button */
-      height: 72px;
-      margin-top: -30px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      /* box-shadow: 0 0 18px #1e90ff; */
-      transition: transform 0.2s ease;
+    .menu-options a.active {
+      background-color: #1e90ff;
     }
 
-    .nav-home img {
-      width: 36px;
-      height: 36px;
-    }
+    @keyframes fadeInMenu {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
 
-    .nav-home:hover {
-      transform: scale(1.1);
-    }
-
-    body {
-      opacity: 0;
-      transition: opacity 1.8s ease;
-    }
-
-    body.loaded {
-      opacity: 1;
-    }
-
-    .nav-item.active {
-      color: #00b4d8;
-    }
-
-    .nav-item.active img {
-      filter: brightness(1.2) saturate(1.5);
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
   </style>
 </head>
@@ -415,19 +321,48 @@
     </div>
   </div>
 
+  <!-- 🔵 Top Right Floating Menu Button -->
+  <div class="floating-menu">
+    <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+    <div class="menu-options" id="menuOptions">
+      <a href="index.html"><img src="logo.png" alt="Home"> Home</a>
+      <a href="inventory.html" class="active"><img src="inventory.png" alt="Inventory"> Inventory</a>
+      <a href="profitloss.html"><img src="profitloss.png" alt="Calculator"> Calculator</a>
+      <a href="history.html"><img src="history.png" alt="History"> History</a>
+      <a href="shuttlehistory.html"><img src="shuttlehistory.png" alt="Shuttle"> Shuttle</a>
+    </div>
+  </div>
+
+  <!-- 🔐 Modals -->
+  <div id="confirmationModal" class="modal">
+    <div class="modal-content">
+      <p id="modalMessage">Action completed.</p>
+      <button onclick="closeModal()" class="modal-button">OK</button>
+    </div>
+  </div>
+
+  <div id="passwordModal" class="modal">
+    <div class="modal-content small-modal">
+      <h3>Reset Inventory</h3>
+      <p>Please enter the password to confirm:</p>
+      <div class="password-wrapper">
+        <input type="password" id="resetPasswordInput" placeholder="Enter password" />
+        <span class="toggle-eye" onclick="togglePassword()">👁️</span>
+      </div>
+      <div id="passwordError" style="color:red; margin-top: 8px;"></div>
+      <button onclick="verifyResetPassword()" class="modal-button">Confirm</button>
+      <button onclick="closePasswordModal()" class="modal-button cancel">Cancel</button>
+    </div>
+  </div>
+
   <script>
-    // Smooth fade-in on load
+    function toggleMenu() {
+      const menu = document.getElementById("menuOptions");
+      menu.style.display = menu.style.display === "block" ? "none" : "block";
+    }
     window.addEventListener('load', () => {
       document.body.classList.add('loaded');
     });
-
-    // Fade-out then navigate
-    function navigateTo(page) {
-      document.body.classList.remove('loaded');
-      setTimeout(() => {
-        window.location.href = page;
-      }, 500); // match transition duration
-    }
 
     let inventory = {
       currentPieces: 12,
@@ -456,9 +391,8 @@
       container.classList.toggle("open");
     }
 
-
     function showWarning(message) {
-      showToast("⚠️ " + message); // replaces inline red warning
+      showToast("⚠️ " + message);
     }
 
     function addShuttles() {
@@ -487,7 +421,7 @@
 
       const history = JSON.parse(localStorage.getItem("shuttleHistory")) || [];
       history.push({
-        id: "shuttle-" + Date.now(), // unique ID for future trace
+        id: "shuttle-" + Date.now(),
         source: "manual",
         date: new Date().toLocaleString(),
         action: "Add",
@@ -545,9 +479,7 @@
       showToast("✅ Removed successfully. Saved to history.");
     }
 
-
     function resetInventory() {
-      // Show the password modal instead of confirming directly
       document.getElementById("resetPasswordInput").value = "";
       document.getElementById("passwordError").textContent = "";
       document.getElementById("passwordModal").classList.add("show");
@@ -572,24 +504,17 @@
         saveInventory();
         updateDisplay();
 
-
         showToast("✅ Inventory and history have been reset.");
       } else {
         errorDisplay.textContent = "❌ Incorrect password. Try again.";
         inputBox.classList.add("shake");
-
-        setTimeout(() => {
-          inputBox.classList.remove("shake");
-        }, 400);
+        setTimeout(() => inputBox.classList.remove("shake"), 400);
       }
     }
-
 
     function closePasswordModal() {
       document.getElementById("passwordModal").classList.remove("show");
     }
-
-
 
     function calculateTotalPiecesUsed() {
       const history = JSON.parse(localStorage.getItem("shuttleHistory")) || [];
@@ -603,97 +528,34 @@
       return used;
     }
 
-    updateDisplay();
-
-    window.addEventListener('storage', function (e) {
-      if (e.key === 'inventoryUpdateSignal') {
-        location.reload(); // or call updateDisplay() if you have one
-      }
-    });
-
-    function showToast(message = "Saved!") {
-      const toast = document.getElementById("toast");
-      toast.textContent = message;
-      toast.classList.add("show");
-
-      setTimeout(() => {
-        toast.classList.remove("show");
-      }, 3000);
-    }
-
     function showToast(message = "Saved!") {
       const modal = document.getElementById("confirmationModal");
       const messageBox = document.getElementById("modalMessage");
-
       messageBox.textContent = message;
       modal.classList.add("show");
     }
 
     function closeModal() {
-      const modal = document.getElementById("confirmationModal");
-      modal.classList.remove("show");
+      document.getElementById("confirmationModal").classList.remove("show");
     }
 
     function togglePassword() {
       const input = document.getElementById("resetPasswordInput");
       input.type = input.type === "password" ? "text" : "password";
     }
+
+    function toggleNavMenu() {
+      const navMenu = document.getElementById("navMenu");
+      navMenu.classList.toggle("show");
+    }
+
+    updateDisplay();
+    window.addEventListener('storage', function (e) {
+      if (e.key === 'inventoryUpdateSignal') {
+        location.reload();
+      }
+    });
   </script>
-
-  <!-- Modal for Confirmation -->
-  <div id="confirmationModal" class="modal">
-    <div class="modal-content">
-      <p id="modalMessage">Action completed.</p>
-      <button onclick="closeModal()" class="modal-button">OK</button>
-    </div>
-  </div>
-  <!-- Modal for Password Confirmation -->
-  <div id="passwordModal" class="modal">
-    <div class="modal-content small-modal">
-      <h3>Reset Inventory</h3>
-      <p>Please enter the password to confirm:</p>
-      <div class="password-wrapper">
-        <input type="password" id="resetPasswordInput" placeholder="Enter password" />
-        <span class="toggle-eye" onclick="togglePassword()">
-          👁️
-        </span>
-      </div>
-      <div id="passwordError" style="color:red; margin-top: 8px;"></div>
-      <button onclick="verifyResetPassword()" class="modal-button">Confirm</button>
-      <button onclick="closePasswordModal()" class="modal-button"
-        style="background-color: grey; margin-left: 10px;">Cancel</button>
-    </div>
-  </div>
-
-  <!-- 🔵 Floating Bottom Nav Bar -->
-  <div class="bottom-nav">
-    <a href="inventory.html" class="nav-item active">
-      <img src="inventory.png" alt="Inventory">
-      <span>Inventory</span>
-    </a>
-
-    <a href="profitloss.html" class="nav-item">
-      <img src="profitloss.png" alt="Profit">
-      <span>Calculator</span>
-    </a>
-
-    <!-- 🎯 Centered Home Button -->
-    <a href="index.html" class="nav-home">
-      <img src="logo.png" alt="Home">
-    </a>
-
-    <a href="history.html" class="nav-item">
-      <img src="history.png" alt="History">
-      <span>History</span>
-    </a>
-
-    <a href="shuttlehistory.html" class="nav-item">
-      <img src="shuttlehistory.png" alt="Shuttle">
-      <span>Shuttle</span>
-    </a>
-  </div>
-
-  <div style="height: 50px;"></div>
 </body>
 
 </html>

@@ -379,6 +379,80 @@
     .nav-item.active img {
       filter: brightness(1.2) saturate(1.5);
     }
+
+    .floating-menu {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1500;
+    }
+
+    .menu-toggle {
+      background-color: #59c5ff;
+      color: #003366;
+      font-size: 26px;
+      font-weight: bold;
+      border: none;
+      border-radius: 50%;
+      width: 56px;
+      height: 56px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      transition: background-color 0.3s ease;
+    }
+
+    .menu-toggle:hover {
+      background-color: #00b4d8;
+    }
+
+    .menu-options {
+      display: none;
+      position: absolute;
+      top: 70px;
+      right: 0;
+      background-color: #003366;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+      overflow: hidden;
+      min-width: 180px;
+      animation: fadeInMenu 0.3s ease;
+    }
+
+    .menu-options a {
+      display: flex;
+      align-items: center;
+      padding: 12px 16px;
+      gap: 10px;
+      color: white;
+      text-decoration: none;
+      font-size: 14px;
+      transition: background-color 0.2s ease;
+    }
+
+    .menu-options a:hover {
+      background-color: #00507a;
+    }
+
+    .menu-options a img {
+      width: 20px;
+      height: 20px;
+    }
+
+    .menu-options a.active {
+      background-color: #1e90ff;
+    }
+
+    @keyframes fadeInMenu {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
   </style>
 </head>
 
@@ -401,6 +475,10 @@
   </div>
 
   <script>
+    function toggleMenu() {
+      const menu = document.getElementById("menuOptions");
+      menu.style.display = menu.style.display === "block" ? "none" : "block";
+    }
     // Smooth fade-in on load
     window.addEventListener('load', () => {
       document.body.classList.add('loaded');
@@ -569,35 +647,17 @@
 
   <script src="script.js"></script>
 
-  <!-- 🔵 Floating Bottom Nav Bar -->
-  <div class="bottom-nav">
-    <a href="inventory.html" class="nav-item">
-      <img src="inventory.png" alt="Inventory">
-      <span>Inventory</span>
-    </a>
-
-    <a href="profitloss.html" class="nav-item">
-      <img src="profitloss.png" alt="Profit">
-      <span>Calculator</span>
-    </a>
-
-    <!-- 🎯 Centered Home Button -->
-    <a href="index.html" class="nav-home">
-      <img src="logo.png" alt="Home">
-    </a>
-
-    <a href="history.html" class="nav-item active">
-      <img src="history.png" alt="History">
-      <span>History</span>
-    </a>
-
-    <a href="shuttlehistory.html" class="nav-item">
-      <img src="shuttlehistory.png" alt="Shuttle">
-      <span>Shuttle</span>
-    </a>
+  <!-- 🔵 Top Right Floating Menu Button -->
+  <div class="floating-menu">
+    <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+    <div class="menu-options" id="menuOptions">
+      <a href="index.html"><img src="logo.png" alt="Home"> Home</a>
+      <a href="inventory.html"><img src="inventory.png" alt="Inventory"> Inventory</a>
+      <a href="profitloss.html"><img src="profitloss.png" alt="Calculator"> Calculator</a>
+      <a href="history.html" class="active"><img src="history.png" alt="History"> History</a>
+      <a href="shuttlehistory.html"><img src="shuttlehistory.png" alt="Shuttle"> Shuttle</a>
+    </div>
   </div>
-
-  <div style="height: 100px;"></div>
 </body>
 
 </html>
