@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Game History</title>
+  <link rel="icon" type="image/png" href="history.png">
+  <style>
+    body {
+      padding: 20px;
+      font-family: sans-serif;
+      background-color: #001f3f;
+      color: #ffffff;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+
+    th,
+    td {
+      border: 1px solid #1b263b;
+      padding: 10px;
+      text-align: center;
+    }
+
+    th {
+      background-color: #1b263b;
+    }
+
+    tr:nth-child(even) {
+      background-color: #243447;
+    }
+
+    .summary {
+      margin-top: 20px;
+      font-size: 16px;
+      text-align: right;
+    }
+
+    .top-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #001f3f;
+      padding: 10px 20px;
+      height: 60px;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .nav-logo {
+      height: 50px;
+      cursor: pointer;
+    }
+
+    .logo-text {
+      font-size: 20px;
+      font-weight: bold;
+      color: white;
+      font-family: serif;
+    }
+
+    .logo-section {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      gap: 10px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 25px;
+    }
+
+    .nav-item {
+      position: relative;
+    }
+
+    .nav-item img {
+      height: 50px;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .nav-item img:hover {
+      transform: scale(1.1);
+    }
+
+    .tooltip {
+      visibility: hidden;
+      background-color: #ffffff;
+      color: #001f3f;
+      text-align: center;
+      border-radius: 6px;
+      padding: 5px 8px;
+      position: absolute;
+      z-index: 1;
+      bottom: -30px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 12px;
+      white-space: nowrap;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .nav-item:hover .tooltip {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    button {
+      padding: 6px 10px;
+      background-color: #ff4444;
+      border: none;
+      color: white;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+
+    button:hover {
+      background-color: #cc0000;
+    }
+
+    .clear-all {
+      margin-top: 10px;
+      text-align: right;
+    }
+
+    #historyCardsContainer {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .history-card {
+      border: 1px solid #1b263b;
+      border-left: 4px solid #00b4d8;
+      padding: 12px 16px;
+      background-color: #112b42;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    }
+
+    .history-card p {
+      margin: 6px 0;
+      font-size: 15px;
+      line-height: 1.5;
+      border-bottom: 1px solid #ffffff22;
+      padding-bottom: 4px;
+    }
+
+    .history-card p:last-of-type {
+      border-bottom: none;
+    }
+
+    .history-card button {
+      margin-top: 10px;
+      background-color: #ff4444;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .history-card button:hover {
+      background-color: #cc0000;
+    }
+
+    /* Animated custom confirmation modal */
+    .confirm-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .confirm-box {
+      background-color: #1a2b40;
+      padding: 20px 25px;
+      border-radius: 10px;
+      text-align: center;
+      color: white;
+      width: 90%;
+      max-width: 320px;
+      animation: popFadeIn 0.4s ease-out;
+      box-shadow: 0 0 10px #00000080;
+    }
+
+    .confirm-box h3 {
+      margin-bottom: 10px;
+      font-size: 18px;
+    }
+
+    .confirm-buttons {
+      margin-top: 20px;
+      display: flex;
+      justify-content: space-around;
+    }
+
+    .confirm-buttons button {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .confirm-yes {
+      background-color: #ff4444;
+      color: white;
+    }
+
+    .confirm-yes:hover {
+      background-color: #cc0000;
+    }
+
+    .confirm-no {
+      background-color: #444;
+      color: white;
+    }
+
+    .confirm-no:hover {
+      background-color: #666;
+    }
+
+    @keyframes popFadeIn {
+      0% {
+        transform: scale(0.85);
+        opacity: 0;
+      }
+
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    /* Temporary floating status message */
+    .status-message {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(40, 50, 70, 0.85);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-size: 15px;
+      z-index: 9999;
+      backdrop-filter: blur(6px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+      opacity: 0;
+      animation: fadeInOut 1.5s ease forwards;
+    }
+
+    .status-success {
+      border-left: 5px solid #00c851;
+    }
+
+    .status-cancelled {
+      border-left: 5px solid #ff3547;
+    }
+
+    @keyframes fadeInOut {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, -20px);
+      }
+
+      15% {
+        opacity: 1;
+        transform: translate(-50%, 0px);
+      }
+
+      85% {
+        opacity: 1;
+        transform: translate(-50%, 0px);
+      }
+
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -10px);
+      }
+    }
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #003366;
+      border-radius: 60px;
+      padding: 16px 30px;
+      /* increased padding */
+      display: flex;
+      gap: 30px;
+      /* more spacing between icons */
+      align-items: center;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: white;
+      text-decoration: none;
+      font-size: 13px;
+      /* bigger text */
+      transition: transform 0.2s ease;
+    }
+
+    .nav-item img {
+      width: 32px;
+      /* bigger icon */
+      height: 32px;
+      margin-bottom: 6px;
+    }
+
+    .nav-item:hover {
+      transform: scale(1.1);
+    }
+
+    .nav-home {
+      background: #1ecbff;
+      border-radius: 50%;
+      width: 72px;
+      /* bigger home button */
+      height: 72px;
+      margin-top: -30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      /* box-shadow: 0 0 18px #1e90ff; */
+      transition: transform 0.2s ease;
+    }
+
+    .nav-home img {
+      width: 36px;
+      height: 36px;
+    }
+
+    .nav-home:hover {
+      transform: scale(1.1);
+    }
+
+    body {
+      opacity: 0;
+      transition: opacity 1.8s ease;
+    }
+
+    body.loaded {
+      opacity: 1;
+    }
+
+    .nav-item.active {
+      color: #00b4d8;
+    }
+
+    .nav-item.active img {
+      filter: brightness(1.2) saturate(1.5);
+    }
+  </style>
+</head>
+
+<body>
+  <div style="text-align: center; margin-top: 5px;">
+    <img src="history.png" alt="history" style="width: 80px; height: auto;">
+  </div>
+  <h2 style="text-align: center;">Game History</h2>
+
+  <p id="noHistoryMsg" style="display: none; text-align: center; font-size: 18px; color: #cccccc; margin-top: 20px;">
+    No history here.
+  </p>
+
+  <div id="historyCardsContainer"></div>
+
+  <div class="summary" id="summary"></div>
+
+  <div class="clear-all">
+    <button onclick="clearAllHistory()">🗑️ Clear All History</button>
+  </div>
+
+  <script>
+    // Smooth fade-in on load
+    window.addEventListener('load', () => {
+      document.body.classList.add('loaded');
+    });
+
+    // Fade-out then navigate
+    function navigateTo(page) {
+      document.body.classList.remove('loaded');
+      setTimeout(() => {
+        window.location.href = page;
+      }, 500); // match transition duration
+    }
+
+    let history = JSON.parse(localStorage.getItem("gameHistory")) || [];
+    let inventory = JSON.parse(localStorage.getItem("inventory")) || {
+      currentPieces: 0
+    };
+    let shuttleHistory = JSON.parse(localStorage.getItem("shuttleHistory")) || [];
+    let profitLoss = JSON.parse(localStorage.getItem("profitLoss")) || [];
+
+    const historyContainer = document.getElementById("historyCardsContainer");
+    const noHistoryMsg = document.getElementById("noHistoryMsg");
+
+    let totalProfit = 0;
+
+    // Clear previous
+    historyContainer.innerHTML = "";
+
+    if (history.length === 0) {
+      noHistoryMsg.style.display = "block";
+    } else {
+      noHistoryMsg.style.display = "none";
+
+      history.forEach((entry, index) => {
+        const card = document.createElement("div");
+        card.className = "history-card";
+
+        const profitColor = parseFloat(entry.profit) < 0 ? "red" : "lime";
+
+        card.innerHTML = `
+            <p><strong>📅 Date:</strong> ${entry.date}</p>
+            <p><strong>🏟️ Court Cost:</strong> RM ${parseFloat(entry.courtFee).toFixed(2)}</p>
+            <p><strong>🎯 Shuttle Cost:</strong> RM ${parseFloat(entry.shuttleCost).toFixed(2)}</p>
+            <p><strong>💰 Total Game Cost:</strong> RM ${parseFloat(entry.totalCost).toFixed(2)}</p>
+            <p><strong>👥 Players:</strong> ${entry.totalPlayers}</p>
+            <p><strong>💵 Total Payment:</strong> RM ${parseFloat(entry.totalPayment).toFixed(2)}</p>
+            <p><strong>📈 Profit/Loss:</strong> <span style="color:${profitColor}">RM ${parseFloat(entry.profit).toFixed(2)}</span></p>
+            <button onclick="deleteRecord(${index})">Delete</button>
+          `;
+
+        historyContainer.appendChild(card);
+        totalProfit += parseFloat(entry.profit);
+      });
+    }
+
+
+    document.getElementById("summary").textContent =
+      "Total Profit / Loss: RM " + totalProfit.toFixed(2);
+    localStorage.setItem("totalProfitLoss", totalProfit.toFixed(2));
+
+    function showConfirmation(message, onConfirm) {
+      const overlay = document.createElement("div");
+      overlay.className = "confirm-overlay";
+
+      const box = document.createElement("div");
+      box.className = "confirm-box";
+      box.innerHTML = `
+          <h3>⚠️ ${message}</h3>
+          <div class="confirm-buttons">
+            <button class="confirm-yes">Yes</button>
+            <button class="confirm-no">No</button>
+          </div>
+        `;
+
+      overlay.appendChild(box);
+      document.body.appendChild(overlay);
+
+      box.querySelector(".confirm-yes").onclick = () => {
+        onConfirm();
+        overlay.remove();
+        showStatusMessage("✅ Record deleted!", "success");
+      };
+      box.querySelector(".confirm-no").onclick = () => {
+        overlay.remove();
+        showStatusMessage("❌ Delete cancelled", "cancelled");
+      };
+    }
+
+    function showStatusMessage(text, type = "success") {
+      const msg = document.createElement("div");
+      msg.className = `status-message ${type === "success" ? "status-success" : "status-cancelled"}`;
+      msg.textContent = text;
+      document.body.appendChild(msg);
+
+      setTimeout(() => {
+        msg.remove();
+      }, 2500); // matches animation duration
+    }
+
+
+    function deleteRecord(index) {
+      showConfirmation("Delete this record?", () => {
+        const deleted = history.splice(index, 1)[0];
+
+        if (deleted && deleted.shuttlesUsed) {
+          inventory.currentPieces += parseInt(deleted.shuttlesUsed) || 0;
+        }
+
+        if (deleted && deleted.gameId) {
+          // Remove corresponding shuttle history entries
+          shuttleHistory = shuttleHistory.filter(
+            entry => !(entry.source === "game" && entry.gameId === deleted.gameId)
+          );
+
+          // Remove corresponding profit/loss entry
+          profitLoss = profitLoss.filter(pl => pl.gameId !== deleted.gameId);
+        }
+
+        // Save updated data
+        localStorage.setItem("inventory", JSON.stringify(inventory));
+        localStorage.setItem("shuttleHistory", JSON.stringify(shuttleHistory));
+        localStorage.setItem("profitLoss", JSON.stringify(profitLoss));
+        localStorage.setItem("gameHistory", JSON.stringify(history));
+
+        // Delay reload to let the status message show
+        setTimeout(() => {
+          location.reload();
+        }, 2000); // Adjust delay to match fade timing
+      })
+    };
+
+    function clearAllHistory() {
+      showConfirmation("Delete ALL game history?", () => {
+
+        // Loop through history to update inventory and related entries
+        history.forEach(entry => {
+          if (entry.shuttlesUsed) {
+            inventory.currentPieces += parseInt(entry.shuttlesUsed) || 0;
+          }
+
+          if (entry.gameId) {
+            shuttleHistory = shuttleHistory.filter(
+              sh => !(sh.source === "game" && sh.gameId === entry.gameId)
+            );
+
+            profitLoss = profitLoss.filter(pl => pl.gameId !== entry.gameId);
+          }
+        });
+
+        // Clear game history
+        history = [];
+
+        // Save updated data
+        localStorage.setItem("inventory", JSON.stringify(inventory));
+        localStorage.setItem("shuttleHistory", JSON.stringify(shuttleHistory));
+        localStorage.setItem("profitLoss", JSON.stringify(profitLoss));
+        localStorage.setItem("gameHistory", JSON.stringify(history));
+
+        // Delay reload to let the status message show
+        setTimeout(() => {
+          location.reload();
+        }, 100); // Adjust delay to match fade timing
+      })
+    };
+  </script>
+
+  <script src="script.js"></script>
+
+  <!-- 🔵 Floating Bottom Nav Bar -->
+  <div class="bottom-nav">
+    <a href="inventory.html" class="nav-item">
+      <img src="inventory.png" alt="Inventory">
+      <span>Inventory</span>
+    </a>
+
+    <a href="profitloss.html" class="nav-item">
+      <img src="profitloss.png" alt="Profit">
+      <span>Calculator</span>
+    </a>
+
+    <!-- 🎯 Centered Home Button -->
+    <a href="index.html" class="nav-home">
+      <img src="logo.png" alt="Home">
+    </a>
+
+    <a href="history.html" class="nav-item active">
+      <img src="history.png" alt="History">
+      <span>History</span>
+    </a>
+
+    <a href="shuttlehistory.html" class="nav-item">
+      <img src="shuttlehistory.png" alt="Shuttle">
+      <span>Shuttle</span>
+    </a>
+  </div>
+
+  <div style="height: 100px;"></div>
+</body>
+
+</html>

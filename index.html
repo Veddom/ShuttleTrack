@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ShuttleTrack</title>
+  <link rel="icon" type="image/png" href="logo.png" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #001f3f;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      min-height: 100vh;
+      overflow-x: hidden;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    body.loaded {
+      opacity: 1;
+    }
+
+    header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 20px;
+      animation: fadeInDown 0.8s ease;
+    }
+
+    #home-logo {
+      width: 80px;
+      height: 80px;
+      object-fit: contain;
+      margin-bottom: 10px;
+      cursor: pointer;
+    }
+
+    header h1 {
+      font-size: 1.8rem;
+      font-family: 'Georgia', serif;
+      color: #ffffff;
+    }
+
+    #total-display {
+      font-size: 1.2rem;
+      margin-top: 10px;
+      color: #ffcc00;
+    }
+
+    main.circle-nav {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 20px;
+      width: 100%;
+      max-width: 520px;
+      animation: fadeInUp 1s ease;
+    }
+
+    .circle-button {
+      background-color: #003366;
+      border-radius: 50%;
+      width: 130px;
+      height: 130px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+      transition: all 0.3s ease;
+      cursor: pointer;
+      padding: 10px;
+      opacity: 0;
+      transform: scale(0.95);
+      animation: popIn 0.6s forwards;
+    }
+
+    .circle-button:nth-child(1) {
+      animation-delay: 0.2s;
+    }
+
+    .circle-button:nth-child(2) {
+      animation-delay: 0.4s;
+    }
+
+    .circle-button:nth-child(3) {
+      animation-delay: 0.6s;
+    }
+
+    .circle-button:nth-child(4) {
+      animation-delay: 0.8s;
+    }
+
+    .circle-button:hover {
+      transform: scale(1.08);
+      background-color: #004080;
+    }
+
+    .circle-button img {
+      width: 60px;
+      height: 60px;
+      margin-bottom: 10px;
+    }
+
+    .circle-button p {
+      font-size: 0.95rem;
+      text-align: center;
+      color: #ffffff;
+    }
+
+    @media (max-width: 480px) {
+      header h1 {
+        font-size: 1.5rem;
+      }
+
+      .circle-button {
+        width: 100px;
+        height: 100px;
+        padding: 8px;
+      }
+
+      .circle-button img {
+        width: 45px;
+        height: 45px;
+      }
+
+      .circle-button p {
+        font-size: 0.8rem;
+      }
+
+      main.circle-nav {
+        gap: 15px;
+      }
+    }
+
+    /* Animations */
+    @keyframes popIn {
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Hidden iframe for background data fetch */
+    #history-frame {
+      display: none;
+    }
+
+    .profit {
+      color: #4caf50 !important;
+      /* green */
+      font-weight: bold;
+    }
+
+    .loss {
+      color: #f44336 !important;
+      /* red */
+      font-weight: bold;
+    }
+
+    #total-display {
+      padding: 10px 16px;
+      border-radius: 8px;
+      background-color: rgba(255, 255, 255, 0.1);
+      margin-top: 12px;
+      font-size: 1.1rem;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Header with Logo and Title -->
+  <header>
+    <img src="logo.png" alt="Logo" id="home-logo" onclick="navigateTo('index.html')" />
+    <h1>ShuttleTrack</h1>
+    <div id="total-display">Loading profit/loss...</div>
+  </header>
+
+  <!-- Circle Button Grid -->
+  <main class="circle-nav">
+    <div class="circle-button" onclick="navigateTo('inventory.html')">
+      <img src="inventory.png" alt="Inventory" />
+      <p>Inventory</p>
+    </div>
+    <div class="circle-button" onclick="navigateTo('profitloss.html')">
+      <img src="profitloss.png" alt="Profit & Loss" />
+      <p>Calculator</p>
+    </div>
+    <div class="circle-button" onclick="navigateTo('history.html')">
+      <img src="history.png" alt="History" />
+      <p>History</p>
+    </div>
+    <div class="circle-button" onclick="navigateTo('shuttlehistory.html')">
+      <img src="shuttlehistory.png" alt="Shuttle" />
+      <p>Shuttle</p>
+    </div>
+  </main>
+
+  <!-- Hidden iframe to load history.html and calculate -->
+  <iframe src="history.html" id="history-frame"></iframe>
+
+  <script>
+    // Fade-in
+    window.addEventListener('load', () => {
+      document.body.classList.add('loaded');
+      updateTotalDisplay();
+    });
+
+    // Navigation with fade-out effect
+    function navigateTo(page) {
+      document.body.classList.remove('loaded');
+      setTimeout(() => {
+        window.location.href = page;
+      }, 500);
+    }
+
+    // Show total profit/loss from localStorage
+    function updateTotalDisplay() {
+      const total = localStorage.getItem("totalProfitLoss");
+      const display = document.getElementById("total-display");
+
+      // Remove old color classes
+      display.classList.remove("profit", "loss");
+
+      if (total !== null && !isNaN(total)) {
+        const num = parseFloat(total);
+        const formatted = Math.abs(num).toFixed(2); // always show positive number
+
+        if (num > 0) {
+          display.textContent = `📈 Profit: RM ${formatted}`;
+          display.classList.add("profit");
+        } else if (num < 0) {
+          display.textContent = `📉 Loss: RM ${formatted}`;
+          display.classList.add("loss");
+        } else {
+          display.textContent = `No profit or loss.`;
+        }
+      } else {
+        display.textContent = "💡 No data available yet.";
+      }
+    }
+
+    // Watch for localStorage changes
+    window.addEventListener("storage", updateTotalDisplay);
+  </script>
+
+</body>
+
+</html>

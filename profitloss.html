@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Profit & Loss Calculator</title>
+  <link rel="icon" type="image/png" href="profitloss.png">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #001f3f;
+      color: white;
+      padding: 20px;
+      margin: 0;
+    }
+
+    .logo-text {
+      font-size: 20px;
+      font-weight: bold;
+      color: white;
+      font-family: serif;
+    }
+
+    .logo-section {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      gap: 10px;
+    }
+
+    .top-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #001f3f;
+      padding: 10px 20px;
+      height: 60px;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .nav-logo {
+      height: 50px;
+      cursor: pointer;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 25px;
+    }
+
+    .nav-item {
+      position: relative;
+    }
+
+    .nav-item img {
+      height: 50px;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .nav-item img:hover {
+      transform: scale(1.1);
+    }
+
+    .tooltip {
+      visibility: hidden;
+      background-color: #ffffff;
+      color: #001f3f;
+      text-align: center;
+      border-radius: 6px;
+      padding: 5px 8px;
+      position: absolute;
+      z-index: 1;
+      bottom: -30px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 12px;
+      white-space: nowrap;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .nav-item:hover .tooltip {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    .section {
+      background-color: #003366;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+
+    h2 {
+      margin-top: 0;
+      font-size: 22px;
+      border-bottom: 2px solid #ffffff33;
+      padding-bottom: 8px;
+      margin-bottom: 15px;
+    }
+
+    .section {
+      background-color: #003366;
+      padding: 25px;
+      border-radius: 12px;
+      margin-bottom: 25px;
+      box-shadow: 0 0 10px #00000055;
+    }
+
+    input,
+    select {
+      padding: 12px;
+      width: 90%;
+      margin-top: 6px;
+      margin-bottom: 18px;
+      border-radius: 6px;
+      border: 1px solid #0d2a4f;
+      background-color: #1a2b40;
+      color: white;
+      font-size: 14px;
+    }
+
+    input::placeholder {
+      color: #ffffffff;
+    }
+
+    label {
+      display: block;
+      margin-top: 10px;
+      margin-bottom: 3px;
+      font-size: 16px;
+      color: #ffffffff;
+    }
+
+    button {
+      padding: 10px 18px;
+      background-color: #1e90ff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      margin-top: 10px;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #3399ff;
+    }
+
+    .reset-btn {
+      background-color: #ff4d4d;
+    }
+
+    .reset-btn:hover {
+      background-color: #ff6666;
+    }
+
+    .result {
+      margin-top: 15px;
+      font-size: 16px;
+      font-weight: bold;
+      line-height: 1.6;
+    }
+
+    .loss {
+      color: #ff6666;
+    }
+
+    .profit {
+      color: #00ff99;
+    }
+
+    #toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #bf4646;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 12px #000000aa;
+      display: none;
+      z-index: 9999;
+      animation: fadeInOut 3s ease forwards;
+    }
+
+    @keyframes fadeInOut {
+      0% {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+
+      10% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      90% {
+        opacity: 1;
+      }
+
+      100% {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+    }
+
+    @keyframes blinkRed {
+      0% {
+        background-color: #660000;
+      }
+
+      50% {
+        background-color: #c34242;
+      }
+
+      100% {
+        background-color: #660000;
+      }
+    }
+
+    .blink-error {
+      animation: blinkRed 1s ease-in-out 3;
+    }
+
+    #saveStatus {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background-color: #1e4034;
+      color: #a0ffc0;
+      padding: 12px 16px;
+      border-left: 5px solid #00e676;
+      border-radius: 8px;
+      margin-top: 15px;
+      font-size: 14px;
+      font-weight: 500;
+      box-shadow: 0 2px 8px #002f1f;
+      animation: fadeInStatus 0.5s ease;
+    }
+
+    #saveStatus .icon {
+      font-size: 20px;
+    }
+
+    @keyframes fadeInStatus {
+      from {
+        opacity: 0;
+        transform: translateY(5px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+
+    a {
+      color: #00bfff;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .top-nav {
+      position: sticky;
+      top: 0;
+      background-color: #001f3f;
+      z-index: 1000;
+      box-shadow: 0 2px 8px #00000055;
+    }
+
+    .tooltip {
+      white-space: nowrap;
+    }
+
+    .custom-alert-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.6);
+      z-index: 9998;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .custom-alert-box {
+      background-color: #1a2b40;
+      color: white;
+      padding: 20px 30px;
+      border-radius: 12px;
+      max-width: 400px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+      font-size: 16px;
+      z-index: 9999;
+      position: relative;
+    }
+
+    .custom-alert-box .icon {
+      font-size: 32px;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .custom-alert-box button {
+      margin-top: 15px;
+      background-color: #3562A8;
+      color: white;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .custom-alert-box button:hover {
+      background-color: #274b7a;
+    }
+
+    @keyframes slideFadeIn {
+      0% {
+        transform: translateY(-30px);
+        opacity: 0;
+      }
+
+      100% {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .custom-alert-box {
+      animation: slideFadeIn 0.5s ease-out;
+    }
+
+    #savePopupOverlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.6);
+      z-index: 9998;
+      display: none;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #savePopupBox {
+      background-color: #1a2b40;
+      color: #a0ffc0;
+      padding: 24px 30px;
+      border-radius: 12px;
+      max-width: 400px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+      position: relative;
+      animation: fadeInPopup 0.3s ease;
+    }
+
+    #savePopupBox .icon {
+      font-size: 32px;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    #savePopupBox .close-btn {
+      position: absolute;
+      top: 8px;
+      right: 12px;
+      background: none;
+      border: none;
+      font-size: 18px;
+      color: #a0ffc0;
+      cursor: pointer;
+    }
+
+    #savePopupBox a {
+      color: #00e6ff;
+      text-decoration: underline;
+      font-weight: bold;
+    }
+
+    @keyframes fadeInPopup {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #003366;
+      border-radius: 60px;
+      padding: 16px 30px;
+      /* increased padding */
+      display: flex;
+      gap: 30px;
+      /* more spacing between icons */
+      align-items: center;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: white;
+      text-decoration: none;
+      font-size: 13px;
+      /* bigger text */
+      transition: transform 0.2s ease;
+    }
+
+    .nav-item img {
+      width: 32px;
+      /* bigger icon */
+      height: 32px;
+      margin-bottom: 6px;
+    }
+
+    .nav-item:hover {
+      transform: scale(1.1);
+    }
+
+    .nav-home {
+      background: #1ecbff;
+      border-radius: 50%;
+      width: 72px;
+      /* bigger home button */
+      height: 72px;
+      margin-top: -30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      /* box-shadow: 0 0 18px #1e90ff; */
+      transition: transform 0.2s ease;
+    }
+
+    .nav-home img {
+      width: 36px;
+      height: 36px;
+    }
+
+    .nav-home:hover {
+      transform: scale(1.1);
+    }
+
+    body {
+      opacity: 0;
+      transition: opacity 1.8s ease;
+    }
+
+    body.loaded {
+      opacity: 1;
+    }
+
+    .nav-item.active {
+      color: #00b4d8;
+    }
+
+    .nav-item.active img {
+      filter: brightness(1.2) saturate(1.5);
+    }
+  </style>
+
+</head>
+
+<body>
+  <div style="text-align: center; margin-top: 5px;">
+    <img src="profitloss.png" alt="profitLoss" style="width: 80px; height: auto;">
+  </div>
+  <h2 style="text-align: center;">Profit Loss Calculator</h2>
+
+  <!-- Section 1: Inventory Summary -->
+  <div class="section">
+    <h2>📦 Inventory Summary</h2>
+    <p>Current Pieces Left: <span id="invPieces">-</span></p>
+    <p>Cost per Piece: RM <span id="invCost">-</span></p>
+  </div>
+
+  <!-- Section 2: Game Cost -->
+  <div class="section">
+    <h2>🎮 Game Cost</h2>
+
+    <label for="courtFee">Court Fee (default: 120)</label>
+    <input type="number" id="courtFee" min="0" value="120" placeholder="Court Fee (default 120)">
+    <label for="shuttlesUsed">Shuttles Used (default: 6)</label>
+    <input type="number" id="shuttlesUsed" min="0" value="6" placeholder="Shuttles Used (default 6)">
+    <button onclick="calculateCost()">Calculate Game Cost</button>
+    <div class="result" id="costResult"></div>
+    <div id="toast">⚠️ Not enough shuttle stock!</div>
+    <div id="shuttleWarning" class="result loss" style="display: none;"></div>
+  </div>
+
+  <!-- Section 3: Payment Received -->
+  <div class="section">
+    <h2>💸 Payment Received</h2>
+    <label>Host Count:</label>
+    <select id="hostCount">
+      <option value="0">0</option>
+      <option value="1">1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4" selected>4</option>
+    </select>
+    <label for="boyCount">Number of Boys</label>
+    <input type="number" id="boyCount" value="8" min="0" placeholder="Boys (default 8)">
+    <label for="boyPrice">Boy Price</label>
+    <input type="number" id="boyPrice" value="20" min="0" placeholder="Price per Boy (default 20)">
+    <label for="girlCount">Number of Girls</label>
+    <input type="number" id="girlCount" value="0" min="0" placeholder="Girls (default 0)">
+    <label for="girlPrice">Girls Price</label>
+    <input type="number" id="girlPrice" value="18" min="0" placeholder="Price per Girl (default 18)">
+    <button onclick="calculatePayment()">Calculate Payment</button>
+    <div class="result" id="paymentResult"></div>
+  </div>
+
+  <!-- Section 4: Profit & Loss -->
+  <div class="section">
+    <h2>📊 Profit / Loss</h2>
+    <div class="result" id="profitLossResult"></div>
+    <button onclick="calculateProfitLoss()">Calculate Profit / Loss</button>
+    <div id="saveStatus" style="display:none; margin-top: 12px;"></div>
+  </div>
+
+
+
+  <script>
+    // Smooth fade-in on load
+    window.addEventListener('load', () => {
+      document.body.classList.add('loaded');
+    });
+
+    // Fade-out then navigate
+    function navigateTo(page) {
+      document.body.classList.remove('loaded');
+      setTimeout(() => {
+        window.location.href = page;
+      }, 500); // match transition duration
+    }
+
+    let inventory = JSON.parse(localStorage.getItem("inventory")) || {
+      currentPieces: 12,
+      costPerPiece: 9.00
+    };
+
+    document.getElementById("invPieces").textContent = inventory.currentPieces;
+    document.getElementById("invCost").textContent = inventory.costPerPiece.toFixed(2);
+
+    let gameCost = null;
+    let totalPayment = null;
+    let shuttleStockOK = true;
+
+    function calculateCost() {
+      const courtFee = parseFloat(document.getElementById("courtFee").value) || 120;
+      const shuttlesUsed = parseInt(document.getElementById("shuttlesUsed").value) || 6;
+      const warningEl = document.getElementById("shuttleWarning");
+      warningEl.style.display = "none";
+      shuttleStockOK = true;
+
+      if (!inventory || typeof inventory.currentPieces !== "number") {
+        alert("⚠️ Inventory data missing. Please reload or update inventory.");
+        return;
+      }
+
+      if (shuttlesUsed > inventory.currentPieces) {
+        const container = document.querySelector('.section:nth-of-type(2)');
+        const toast = document.getElementById("toast");
+        toast.style.display = "block";
+        setTimeout(() => toast.style.display = "none", 3000);
+
+        warningEl.innerHTML = `
+          🚨 <strong>Not enough shuttle stock!</strong><br>
+          Required: ${shuttlesUsed}, Available: ${inventory.currentPieces}<br>
+          <a href="inventory.html" style="color: #00bfff;">Fix in Inventory</a>
+        `;
+        warningEl.style.display = "block";
+
+        document.getElementById("costResult").innerHTML = "";
+        shuttleStockOK = false;
+
+        container.classList.add("blink-error");
+        setTimeout(() => container.classList.remove("blink-error"), 3000);
+
+        return;
+      }
+
+      const shuttleCost = inventory.costPerPiece * shuttlesUsed;
+      const total = courtFee + shuttleCost;
+
+      document.getElementById("costResult").innerHTML =
+        `Total Game Cost: RM ${total.toFixed(2)}<br>
+        Shuttle Cost: RM ${shuttleCost.toFixed(2)}<br>
+        Shuttles Used: ${shuttlesUsed}<br>
+        Remaining Shuttle (if deducted): ${inventory.currentPieces - shuttlesUsed}`;
+
+      gameCost = {
+        total,
+        shuttleUsed: shuttlesUsed,
+        courtFee: courtFee,
+        shuttleCost: shuttleCost
+      };
+    }
+
+    function calculatePayment() {
+      const hostCount = parseInt(document.getElementById("hostCount").value);
+      const boyCount = parseInt(document.getElementById("boyCount").value) || 0;
+      const girlCount = parseInt(document.getElementById("girlCount").value) || 0;
+      const boyPrice = parseFloat(document.getElementById("boyPrice").value) || 20;
+      const girlPrice = parseFloat(document.getElementById("girlPrice").value) || 18;
+
+      const payment = (boyCount * boyPrice) + (girlCount * girlPrice);
+
+      document.getElementById("paymentResult").innerHTML =
+        `Total Players (excluding host): ${boyCount + girlCount}<br>Total Payment: RM ${payment.toFixed(2)}`;
+
+      totalPayment = payment;
+    }
+
+    function generateGameId() {
+      return 'game_' + Date.now();
+    }
+
+    function calculateProfitLoss() {
+      if (!shuttleStockOK) {
+        showCustomAlert("🚫 Cannot proceed: Not enough shuttle stock. Please fix it in the inventory.", "🚫");
+        return;
+      }
+
+      if (!gameCost || totalPayment === null) {
+        showCustomAlert("⚠️ Please calculate game cost and payment first.", "⚠️");
+        return;
+      }
+
+
+      const profit = totalPayment - gameCost.total;
+
+      // 1. Show profit/loss result BELOW the button
+      const resultText = `${profit >= 0 ? "Profit" : "Loss"}: RM ${Math.abs(profit).toFixed(2)}`;
+      const resultClass = "result " + (profit >= 0 ? "profit" : "loss");
+      const resultEl = document.getElementById("profitLossResult");
+      resultEl.textContent = resultText;
+      resultEl.className = resultClass;
+      resultEl.style.marginTop = "12px"; // move it a bit below the button for visibility
+
+      // 2. System auto-saves (no prompt)
+      const gameId = generateGameId();
+      const hostCount = parseInt(document.getElementById("hostCount").value);
+      const boyCount = parseInt(document.getElementById("boyCount").value);
+      const girlCount = parseInt(document.getElementById("girlCount").value);
+      const boyPrice = parseFloat(document.getElementById("boyPrice").value);
+      const girlPrice = parseFloat(document.getElementById("girlPrice").value);
+      const totalPlayers = hostCount + boyCount + girlCount;
+
+      const newRecord = {
+        date: new Date().toLocaleString(),
+        courtFee: gameCost.courtFee,
+        shuttlesUsed: gameCost.shuttleUsed,
+        shuttleCost: gameCost.shuttleCost.toFixed(2),
+        totalCost: gameCost.total.toFixed(2),
+        totalPlayers,
+        totalPayment: totalPayment.toFixed(2),
+        profit: profit.toFixed(2),
+        hosts: hostCount,
+        boys: boyCount,
+        girls: girlCount,
+        boyPrice,
+        girlPrice,
+        gameId
+      };
+
+      // Save to localStorage
+      const gameHistory = JSON.parse(localStorage.getItem("gameHistory") || "[]");
+      gameHistory.push(newRecord);
+      localStorage.setItem("gameHistory", JSON.stringify(gameHistory));
+
+      const profitLoss = JSON.parse(localStorage.getItem("profitLoss") || "[]");
+      profitLoss.push(newRecord);
+      localStorage.setItem("profitLoss", JSON.stringify(profitLoss));
+
+      inventory.currentPieces -= gameCost.shuttleUsed;
+      inventory.totalPiecesUsed = (inventory.totalPiecesUsed || 0) + gameCost.shuttleUsed;
+      localStorage.setItem("inventory", JSON.stringify(inventory));
+      localStorage.setItem("inventoryUpdateSignal", Date.now());
+
+      const shuttleHistory = JSON.parse(localStorage.getItem("shuttleHistory") || "[]");
+      shuttleHistory.push({
+        date: new Date().toLocaleString(),
+        action: "Remove",
+        tubes: 0,
+        costPerTube: "-",
+        beforePieces: inventory.currentPieces + gameCost.shuttleUsed,
+        beforeCostPerPiece: inventory.costPerPiece.toFixed(2),
+        afterCostPerPiece: inventory.costPerPiece.toFixed(2),
+        totalPiecesAfter: inventory.currentPieces,
+        source: "game",
+        gameId
+      });
+      localStorage.setItem("shuttleHistory", JSON.stringify(shuttleHistory));
+
+      // Update inventory display
+      document.getElementById("invPieces").textContent = inventory.currentPieces;
+      document.getElementById("invCost").textContent = inventory.costPerPiece.toFixed(2);
+
+      // 3. Fade-out success message
+      document.getElementById("savePopupOverlay").style.display = "flex";
+    }
+
+    function showCustomAlert(message, icon = "ℹ️", autoClose = false, closeTime = 3000) {
+      // Remove existing alert if any
+      const oldAlert = document.querySelector(".custom-alert-overlay");
+      if (oldAlert) oldAlert.remove();
+
+      // Create overlay
+      const overlay = document.createElement("div");
+      overlay.className = "custom-alert-overlay";
+
+      // Create alert box
+      const alertBox = document.createElement("div");
+      alertBox.className = "custom-alert-box";
+      alertBox.innerHTML = `
+          <span class="icon">${icon}</span>
+          <p>${message}</p>
+          <button onclick="this.closest('.custom-alert-overlay').remove()">OK</button>
+        `;
+
+      overlay.appendChild(alertBox);
+      document.body.appendChild(overlay);
+
+      if (autoClose) {
+        setTimeout(() => {
+          // Fade out before removing
+          alertBox.style.transition = "opacity 0.5s ease, transform 0.5s ease";
+          alertBox.style.opacity = 0;
+          alertBox.style.transform = "translateY(-20px)";
+          setTimeout(() => overlay.remove(), 500);
+        }, closeTime);
+      }
+    }
+  </script>
+  <div id="savePopupOverlay">
+    <div id="savePopupBox">
+      <button class="close-btn" onclick="document.getElementById('savePopupOverlay').style.display='none'">✖</button>
+      <span class="icon">✅</span>
+      <p>Already saved to history. <a href="history.html">Check here</a></p>
+    </div>
+  </div>
+
+  <!-- 🔵 Floating Bottom Nav Bar -->
+  <div class="bottom-nav">
+    <a href="inventory.html" class="nav-item">
+      <img src="inventory.png" alt="Inventory">
+      <span>Inventory</span>
+    </a>
+
+    <a href="profitloss.html" class="nav-item active">
+      <img src="profitloss.png" alt="Profit">
+      <span>Calculator</span>
+    </a>
+
+    <!-- 🎯 Centered Home Button -->
+    <a href="index.html" class="nav-home">
+      <img src="logo.png" alt="Home">
+    </a>
+
+    <a href="history.html" class="nav-item">
+      <img src="history.png" alt="History">
+      <span>History</span>
+    </a>
+
+    <a href="shuttlehistory.html" class="nav-item">
+      <img src="shuttlehistory.png" alt="Shuttle">
+      <span>Shuttle</span>
+    </a>
+  </div>
+
+  <div style="height: 100px;"></div>
+</body>
+
+</html>
